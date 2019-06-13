@@ -18,12 +18,15 @@
 #define DRAW_WINDOW_HEIGHT 720	// 描画時の画面の高さ
 #define START_LIFE 3			// 初期ライフ
 #define START_TIME 400			// 初期残り時間
-#define NORMAL_SPEED 3			// 移動速度
-#define DASH_SPEED 7			// ダッシュ速度
+#define NORMAL_SPEED 4			// 移動速度
+#define DASH_SPEED 10			// ダッシュ速度
 #define NORMAL_JUMPPOWER 16		// ジャンプ強度
 #define DASH_JUMPPOWER 19		// ダッシュジャンプ強度
 #define GRAVITY 2				// 重力
 #define MAX_GRAVITY 11			// 重力最大値
+
+const float NORMAL_ACCEL = 0.1;
+const float DASH_ACCEL = 0.5;
 
 /***********************************************
  * 列挙体の宣言
@@ -114,6 +117,7 @@ bool g_IsThroughMiddlePoint;	// 中間地点を通過したか
 struct PLAYER {
 	int life;
 	int x,y;		// 座標 x,y
+	float mx;
 	bool angle;		// 向いている方向。 左0←	→1右
 	bool isjump;	// ジャンプ中:1
 	int jumppower;	// ジャンプ力
@@ -265,6 +269,7 @@ void DrawTitle(void)
 void GameInit(void)
 {
 	g_Player.x = 64;
+	g_Player.mx = 0;
 	g_Player.y = 288;
 	g_Player.angle = 1;
 	g_Player.isinv = FALSE;
@@ -335,18 +340,28 @@ void PlayerControll(void)
 {
 	if( Buf[ KEY_INPUT_LEFT ] != 0){
 		if( IsPushDashKey() == TRUE){
-			g_Player.x -= DASH_SPEED;
+			g_Player.mx -= DASH_ACCEL;
+			if( g_Player.mx < -DASH_SPEED) g_Player.mx = -DASH_SPEED;
 		}else{
-			g_Player.x -= NORMAL_SPEED;
+			g_Player.mx -= NORMAL_ACCEL;
+			if( g_Player.mx < -NORMAL_SPEED) g_Player.mx = -NORMAL_SPEED;
 		}
 		
 	}else if( Buf[ KEY_INPUT_RIGHT ] != 0){
 		if( IsPushDashKey() == TRUE){
-			g_Player.x += DASH_SPEED;
+			g_Player.mx += DASH_ACCEL;
+			if( g_Player.mx > DASH_SPEED) g_Player.mx = DASH_SPEED;
 		}else{
-			g_Player.x += NORMAL_SPEED;
+			g_Player.mx += NORMAL_ACCEL;
+			if( g_Player.mx > NORMAL_SPEED) g_Player.mx = NORMAL_SPEED;
 		}
+	}else{
+		if( g_Player.mx < 0){
+			g_Player.mx += NORMAL_ACCEL;
+		}else if( g_Player.mx > 0) g_Player.mx -= NORMAL_ACCEL;
 	}
+
+	g_Player.x += (int)g_Player.mx;
 
 	PlayerJump();
 }
