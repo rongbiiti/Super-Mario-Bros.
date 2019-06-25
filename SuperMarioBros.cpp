@@ -11,27 +11,30 @@
  ***********************************************/
 #define DEBUG 1					// 0¨ƒfƒoƒbƒOOFF	1¨ƒfƒoƒbƒOON
 #define BLOCKSIZE 32			// 1ƒ}ƒX‚Ì‘å‚«‚³
-#define FONTDATA_COUNT 9		// ƒtƒHƒ“ƒgƒf[ƒ^‚Ì”
-#define SCREEN_WIDTH 512		// ‰æ–Ê‚Ì•
-#define SCREEN_HEIGHT 384		// ‰æ–Ê‚Ì‚‚³
-#define DRAW_WINDOW_WIDTH 960	// •`‰æ‚Ì‰æ–Ê‚Ì•B
-#define DRAW_WINDOW_HEIGHT 720	// •`‰æ‚Ì‰æ–Ê‚Ì‚‚³
+#define FONTDATA_COUNT 10		// ƒtƒHƒ“ƒgƒf[ƒ^‚Ì”
+#define SCREEN_WIDTH 640		// ‰æ–Ê‚Ì•
+#define SCREEN_HEIGHT 512		// ‰æ–Ê‚Ì‚‚³
+#define DRAW_WINDOW_WIDTH 1152	// •`‰æ‚Ì‰æ–Ê‚Ì•B
+#define DRAW_WINDOW_HEIGHT 864	// •`‰æ‚Ì‰æ–Ê‚Ì‚‚³
+#define MAP_WIDTH 221			// ƒ}ƒbƒv‚Ì•
+#define MAP_HEIGHT 16			// ƒ}ƒbƒv‚Ì‚‚³
 #define START_LIFE 3			// ‰Šúƒ‰ƒCƒt
 #define START_TIME 400			// ‰Šúc‚èŠÔ
-#define NORMAL_SPEED 4			// ˆÚ“®‘¬“x
-#define DASH_SPEED 10			// ƒ_ƒbƒVƒ…‘¬“x
-#define NORMAL_JUMPPOWER 16		// ƒWƒƒƒ“ƒv‹­“x
-#define DASH_JUMPPOWER 19		// ƒ_ƒbƒVƒ…ƒWƒƒƒ“ƒv‹­“x
+#define NORMAL_SPEED 3			// ˆÚ“®‘¬“x
+#define DASH_SPEED 5			// ƒ_ƒbƒVƒ…‘¬“x
+#define NORMAL_JUMPPOWER 18		// ƒWƒƒƒ“ƒv‹­“x
+#define DASH_JUMPPOWER 18		// ƒ_ƒbƒVƒ…ƒWƒƒƒ“ƒv‹­“x
 #define GRAVITY 2				// d—Í
-#define MAX_GRAVITY 11			// d—ÍÅ‘å’l
+#define MAX_GRAVITY 7			// d—ÍÅ‘å’l
+#define HITBOX	32				// ƒ}ƒŠƒI‚Ì“–‚½‚è”»’è
 
-const float NORMAL_ACCEL = 0.1;
-const float DASH_ACCEL = 0.5;
+const float NORMAL_ACCEL = 0.23f;
+const float DASH_ACCEL = 0.32f;
 
 /***********************************************
  * —ñ‹“‘Ì‚ÌéŒ¾
  ***********************************************/
-typedef enum GAME_MODE{
+typedef enum GAME_MODE {
 	GAME_TITLE,
 	GAME_INIT,
 	GAME_PREMAIN,		// ƒƒCƒ“‚É“ü‚é’¼‘O‚Ìc‹@•\¦‰æ–Ê
@@ -40,7 +43,8 @@ typedef enum GAME_MODE{
 	END = 99
 };
 
-typedef enum FONTSIZE{
+typedef enum FONTSIZE {
+	Size10,
 	Size16,				// ƒtƒHƒ“ƒgƒf[ƒ^‚Ì”z—ñ‚Ì“Y‚¦šw’è—p‚Ì—ñ‹“’è”‚ÌéŒ¾
 	Size20,
 	Size25,
@@ -48,33 +52,33 @@ typedef enum FONTSIZE{
 	Size35,
 	Size40,
 	Size48,
-	Size50,
+	Size100,
 	Size200
 };
 
-typedef enum MARIO_STATUS{
+typedef enum MARIO_STATUS {
 	CHIBI,		// ƒ`ƒrƒ}ƒŠƒI
 	SUPER,		// ƒX[ƒp[ƒ}ƒŠƒI
 	FIRE,		// ƒtƒ@ƒCƒAƒ}ƒŠƒI
 	STAR		// –³“G
 };
 
-typedef enum ENEMY{
+typedef enum ENEMY {
 	KURIBO,			// ƒNƒŠƒ{[
 	NOKONOKO,		// ƒmƒRƒmƒR
 	SHELL,			// ƒJƒ‚ÌƒRƒEƒ‰
 	PAKKUN_FLOWER	// ƒpƒbƒNƒ“ƒtƒ‰ƒ[
 };
 
-typedef enum ITEM{
+typedef enum ITEM {
 	SUPER_KINOKO,	// ƒX[ƒp[ƒLƒmƒR
 	FIRE_FLOWER,	// ƒtƒ@ƒCƒAƒtƒ‰ƒ[
 	SUPER_STAR,		// ƒX[ƒp[ƒXƒ^[
 	ONEUP_KINOKO,	// 1UPƒLƒmƒR
 };
 
-typedef enum MAP_OBJECT{
-	GROUND = 1,				// ’n–ÊƒuƒƒbƒN
+typedef enum MAP_OBJECT {
+	GROUND = 7,				// ’n–ÊƒuƒƒbƒN
 	RENGA_BLOCK,			// ƒŒƒ“ƒKƒuƒƒbƒN
 	TEN_COIN_BLOCK,			// 10ƒRƒCƒ“ƒuƒƒbƒN
 	HATENA_BLOCK,			// ƒnƒeƒiƒuƒƒbƒN
@@ -90,7 +94,7 @@ typedef enum MAP_OBJECT{
 	SPAWN_PAKKUN_FLOWER		// ƒpƒbƒNƒ“ƒtƒ‰ƒ[oŒ»ˆÊ’u
 };
 
-typedef enum INIT_STATUS{
+typedef enum INIT_STATUS {
 	FIRST,				// 1-1‚©‚ç
 	MISS,				// ƒ~ƒX
 	CLEAR				// ƒR[ƒXƒNƒŠƒA
@@ -99,14 +103,21 @@ typedef enum INIT_STATUS{
 /***********************************************
  * •Ï”‚ÌéŒ¾
  ***********************************************/
-int Buf[ 256 ] ;				// ƒL[ƒ{[ƒh“ü—Íî•ñæ“¾‚Ì‚½‚ß‚Ì•Ï”
-int FontSize[ FONTDATA_COUNT ];	// ƒtƒHƒ“ƒgƒf[ƒ^‚ğ•Û‘¶‚µ‚Ä‚¨‚­”z—ñ
+int Buf[256];				// ƒL[ƒ{[ƒh“ü—Íî•ñæ“¾‚Ì‚½‚ß‚Ì•Ï”
+int FontSize[FONTDATA_COUNT];	// ƒtƒHƒ“ƒgƒf[ƒ^‚ğ•Û‘¶‚µ‚Ä‚¨‚­”z—ñ
 
 int g_GameState = GAME_INIT;
+
+int g_ScrollQuantity;
 
 int g_Score;
 int g_Coin;
 int g_Time;
+
+int g_HitBlockX;	// “–‚½‚Á‚½“Vˆä‚ÌƒuƒƒbƒN‚ÌXÀ•W
+int g_HitBlockY;	// “–‚½‚Á‚½“Vˆä‚ÌƒuƒƒbƒN‚ÌYÀ•W
+int g_BlockAnimCnt;	// “–‚½‚Á‚½ƒuƒƒbƒN‚ªã‰º‚É“®‚­‚Æ‚«‚Ì•Ï”
+int g_BlockAnimFlg;// ƒuƒƒbƒN‚ªã‰º‚É“®‚­‚Æ‚«‚Ìƒtƒ‰ƒOB“®‚¢‚Ä‚È‚¢0Aã¸’†1A‰º~’†2B
 
 int g_InitStatus;				// ‰Šúˆ—‚Åˆê•”‚Ì•Ï”‚ğ‰Šú‰»‚·‚é‚©”»’f‚·‚é‚½‚ß‚Ì•Ï”B0:‰‰ñA1:ƒ~ƒXA2:ƒNƒŠƒAB
 bool g_IsThroughMiddlePoint;	// ’†ŠÔ’n“_‚ğ’Ê‰ß‚µ‚½‚©
@@ -116,45 +127,57 @@ bool g_IsThroughMiddlePoint;	// ’†ŠÔ’n“_‚ğ’Ê‰ß‚µ‚½‚©
  ***********************************************/
 struct PLAYER {
 	int life;
-	int x,y;		// À•W x,y
+	int status;
+	int x, y;		// À•W x,y
+	int px, py;		// ˆÚ“®‘OÀ•W
 	float mx;
-	bool angle;		// Œü‚¢‚Ä‚¢‚é•ûŒüB ¶0©	¨1‰E
+	bool angle;		// Œü‚¢‚Ä‚¢‚é•ûŒüB ¶1©	¨0‰E
 	bool isjump;	// ƒWƒƒƒ“ƒv’†:1
 	int jumppower;	// ƒWƒƒƒ“ƒv—Í
-	int jumpcnt;
+	bool jumpOK;
+	bool isground;
 	bool isinv;		// –³“Gƒtƒ‰ƒO(0:’Êíó‘Ô ,1:–³“Gó‘Ô)B“G‚ÆÕ“Ë‚µ‚½‚Æ‚«‚Ég‚¤
 	int invcnt;		// –³“Gó‘Ô‚Ìc‚èŠÔ
-};
+	int animnum;	// ƒAƒjƒ[ƒVƒ‡ƒ“‚Ì”Ô†
+	bool issuper;	// ƒfƒJƒ}ƒŠƒI‚©
+	bool iscrouch;	// ƒfƒJƒ}ƒŠƒI’†‚É‚µ‚á‚ª‚ñ‚Å‚¢‚é‚©	
+};																	
 struct PLAYER g_Player;
 
 /***********************************************
  * ‰æ‘œƒf[ƒ^—p•Ï”‚ÌéŒ¾
  ***********************************************/
 int g_Mapchip[84];		// ƒ}ƒbƒvƒ`ƒbƒv‰æ‘œŠi”[—p”z—ñ
+int g_MarioImage[3][15];		// ƒ}ƒŠƒIƒLƒƒƒ‰ƒ`ƒbƒv‰æ‘œ
 
 /***********************************************
  * ‰¹ƒf[ƒ^—p•Ï”‚ÌéŒ¾
  ***********************************************/
 
 
-/***********************************************
- * ƒXƒe[ƒW”z—ñ‚ÌéŒ¾
- ***********************************************/
-int g_InitStage[12][100] = {{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,5,1,5,1,5,-1,-1,-1,-1,-1,-1,36,37,38,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,48,49,50,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{-1,14,15,16,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,21,22,23,48,49,50,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
-{7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}};
+ /***********************************************
+  * ƒXƒe[ƒW”z—ñ‚ÌéŒ¾
+  ***********************************************/
+int g_InitStage[MAP_HEIGHT][MAP_WIDTH] = { {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,18,19,19,19,20,-1,-1,-1,-1,30,31,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,19,19,20,-1,-1,-1,-1,30,31,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,18,19,19,19,20,-1,-1,-1,-1,30,31,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,33,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,-1,18,19,19,19,20,-1,-1,-1,18,19,19,20,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,30,31,31,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,31,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,31,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,18,19,20,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,30,31,31,31,32,-1,-1,-1,30,31,31,32,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,5,5,5,5,5,5,-1,-1,-1,5,5,5,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,5,5,-1,-1,-1,-1,5,1,1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,30,31,32,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,68,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,8,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,-1,-1,42,42,42,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,5,1,5,1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,-1,-1,-1,-1,-1,5,5,-1,-1,-1,-1,-1,1,-1,-1,1,-1,-1,1,-1,-1,-1,-1,-1,-1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,5,-1,-1,-1,-1,-1,-1,8,-1,-1,8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,-1,-1,8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,5,1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,8,8,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,-1,-1,44,45,46,-1,-1,-1,-1,-1,-1},
+											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,-1,-1,8,8,-1,-1,-1,-1,17,-1,-1,-1,8,8,8,-1,-1,8,8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,8,8,8,-1,-1,-1,17,-1,-1,-1,-1,34,-1,-1,-1,42,43,43,43,42,-1,-1,-1,-1,-1},
+											{-1,17,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,14,15,16,-1,-1,-1,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,15,16,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,-1,-1,8,8,8,-1,-1,14,15,16,-1,8,8,8,8,-1,-1,8,8,8,-1,-1,-1,17,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,8,8,8,8,8,8,8,8,-1,-1,14,15,16,-1,-1,-1,34,-1,-1,-1,45,45,47,45,45,-1,-1,17,-1,-1},
+											{14,15,16,-1,-1,-1,-1,76,77,-1,-1,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,21,22,23,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,21,22,22,23,-1,76,77,-1,14,15,15,15,16,-1,-1,-1,-1,76,77,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,21,22,22,23,-1,-1,-1,14,15,15,15,16,-1,-1,-1,-1,-1,-1,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,22,22,8,8,8,8,14,15,15,15,8,8,8,8,8,-1,-1,8,8,8,8,23,14,15,16,76,77,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,76,77,8,8,8,8,8,8,8,8,8,-1,14,15,15,15,16,-1,-1,8,-1,-1,-1,45,45,59,45,45,23,14,15,16,-1},
+											{7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7},
+											{7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7} };
 
 
-int g_Stage[12][100];
+
+int g_Stage[MAP_HEIGHT][MAP_WIDTH];
 /***********************************************
  ŠÖ”‚Ìƒvƒƒgƒ^ƒCƒvéŒ¾
  **********************************************/
@@ -162,15 +185,34 @@ void InputKey(void);		// 0:“ü—Í‚³‚ê‚Ä‚¢‚È‚¢ 1:“ü—Í‚³‚ê‚½uŠÔ 2ˆÈã:“ü—Í‚³‚ê‚Ä‚¢‚
 
 void DrawTitle(void);		// ƒ^ƒCƒgƒ‹‰æ–Ê•`‰æ
 void GameInit(void);		// ‰Šú‰»ˆ—
+void StageInit(void);		// ƒXƒe[ƒW‰Šú‰»ˆ—
 void DrawPreMain(void);		// ƒƒCƒ“’¼‘O‚Ìƒ}ƒŠƒIc‹@”•\¦‰æ–Ê
 
 void DrawMain(void);		// ƒQ[ƒ€ƒƒCƒ“
 void PlayerControll(void);	// ƒvƒŒƒCƒ„[§Œä
+void PlayerFall(void);		// ƒvƒŒƒCƒ„[—‰º
+int IsBlock(int x, int y);	// ‚»‚ÌÀ•W‚ÉƒuƒƒbƒN‚ª‚ ‚é‚©”»’è‚·‚é
+int IsHitBlockR(void);		// ‰E‘¤ƒuƒƒbƒN‚Æ‚Ì“–‚½‚è”»’è
+int IsHitBlockL(void);		// ¶‘¤ƒuƒƒbƒN‚Æ‚Ì“–‚½‚è”»’è
+int IsHitGround(void);		// ’n–Ê‚Æ‚Ì“–‚½‚è”»’è
+int IsHitCeil(void);		// “Vˆä‚Æ‚Ì“–‚½‚è”»’è
+void HitBlockMemo(int x, int y);	// “–‚½‚Á‚½“Vˆä‚ÌƒuƒƒbƒN‚ÌÀ•W‚ğ‹L‰¯‚µ‚Ä‚¨‚«AƒuƒƒbƒNƒAƒjƒƒtƒ‰ƒO‚ğ—§‚Ä‚é
+int IsIntoHole(int y);		// ŒŠ‚É—‚¿‚½‚©”»’è
+void FixPlayerPosition(void);// ƒvƒŒƒCƒ„[‚ª‰æ–Ê’[‚©‚ço‚È‚¢‚æ‚¤‚É‚·‚é
 bool IsPushDashKey(void);	// ƒ_ƒbƒVƒ…ƒL[‰Ÿ‚µ‚Ä‚é‚©”»’f
+bool IsPushCrouchKey(void);	// ‚µ‚á‚ª‚İƒL[‰Ÿ‚µ‚Ä‚é‚©”»’f
 bool IsPushJumpKey(void);	// ƒWƒƒƒ“ƒvƒL[‰Ÿ‚µ‚Ä‚é‚©”»’f
 void PlayerJump(void);		// ƒWƒƒƒ“ƒvˆ—
+
 void DrawPlayer(void);		// ƒvƒŒƒCƒ„[•`‰æ
+void PlayerAnimControll(void);	// ƒvƒŒƒCƒ„[ƒAƒjƒƒVƒ‡ƒ“§Œä
+
+int IsItemHitBlockR(int x, int y);	// ƒAƒCƒeƒ€‚Æ‰E‘¤ƒuƒƒbƒN‚Æ‚Ì“–‚½‚è”»’è
+int IsItemHitBlockL(int x, int y);	// ƒAƒCƒeƒ€‚Æ¶‘¤ƒuƒƒbƒN‚Æ‚Ì“–‚½‚è”»’è
+int IsItemHitGround(int x, int y);	// ƒAƒCƒeƒ€‚Æ’n–Ê‚Æ‚Ì“–‚½‚è”»’è
+
 void DrawStage(void);		// ƒXƒe[ƒW•`‰æ
+void StageScroll(void);		// ƒXƒe[ƒW‚ÌƒXƒNƒ[ƒ‹
 void DrawUI(void);			// ‰æ–Êã•”‚ÌUI•`‰æ
 void DrawDebugInfo(void);	// ƒfƒoƒbƒO—pî•ñ•\¦
 
@@ -183,56 +225,56 @@ void CreateFontData(void);	// ƒtƒHƒ“ƒgƒf[ƒ^ì¬
 /***********************************************
  * ƒvƒƒOƒ‰ƒ€‚ÌŠJn
  ***********************************************/
-int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	SetMainWindowText( "Super Mario Bros." );
+	SetMainWindowText("Super Mario Bros.");
 
-	SetGraphMode( DRAW_WINDOW_WIDTH , DRAW_WINDOW_HEIGHT , 32 );
+	SetGraphMode(DRAW_WINDOW_WIDTH, DRAW_WINDOW_HEIGHT, 32);
 
-	ChangeWindowMode( TRUE );
+	ChangeWindowMode(TRUE);
 
-	if ( DxLib_Init() == -1 ) return -1;
+	if (DxLib_Init() == -1) return -1;
 
-	int offscreen_handle = MakeScreen( SCREEN_WIDTH, SCREEN_HEIGHT, FALSE);
+	int offscreen_handle = MakeScreen(SCREEN_WIDTH, SCREEN_HEIGHT, FALSE);
 
-	SetDrawScreen( offscreen_handle );
+	SetDrawScreen(offscreen_handle);
 
-	if ( LoadImages() == -1 ) return -1; // ‰æ‘œ“Ç‚İŠÖ”‚ğŒÄ‚Ño‚µ
-	if ( LoadSounds() == -1 ) return -1; // ƒTƒEƒ“ƒh“Ç‚İŠÖ”‚ğŒÄ‚Ño‚µ
+	if (LoadImages() == -1) return -1; // ‰æ‘œ“Ç‚İŠÖ”‚ğŒÄ‚Ño‚µ
+	if (LoadSounds() == -1) return -1; // ƒTƒEƒ“ƒh“Ç‚İŠÖ”‚ğŒÄ‚Ño‚µ
 	CreateFontData();
 
 	// ƒQ[ƒ€ƒ‹[ƒv
-	while ( ProcessMessage() == 0 && g_GameState != END && ( Buf[ KEY_INPUT_ESCAPE ] == 0 )){
+	while (ProcessMessage() == 0 && g_GameState != END && (Buf[KEY_INPUT_ESCAPE] == 0)) {
 
 		SetDrawScreen(offscreen_handle);
 		ClearDrawScreen();
 		InputKey();
 
-		switch (g_GameState){
-			case GAME_TITLE:
-				DrawTitle();
+		switch (g_GameState) {
+		case GAME_TITLE:
+			DrawTitle();
 			break;
-			case GAME_INIT:
-				GameInit();
+		case GAME_INIT:
+			GameInit();
 			break;
-			case GAME_PREMAIN:
-				DrawPreMain();
+		case GAME_PREMAIN:
+			DrawPreMain();
 			break;
-			case GAME_MAIN:
-				DrawMain();
+		case GAME_MAIN:
+			DrawMain();
 			break;
-			case GAME_OVER:
-				DrawGameOver();
+		case GAME_OVER:
+			DrawGameOver();
 			break;
 		}
 
-		SetDrawScreen( DX_SCREEN_BACK );
-		DrawExtendGraph( 0, 0, DRAW_WINDOW_WIDTH, DRAW_WINDOW_HEIGHT, offscreen_handle, FALSE);
+		SetDrawScreen(DX_SCREEN_BACK);
+		DrawExtendGraph(0, 0, DRAW_WINDOW_WIDTH, DRAW_WINDOW_HEIGHT, offscreen_handle, FALSE);
 		ScreenFlip();
 
 	}
 
-	if ( DxLib_Init() == -1 ) return -1;
+	if (DxLib_Init() == -1) return -1;
 
 	DxLib_End();
 
@@ -245,11 +287,11 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 void InputKey(void)
 {
 	static char Key[256];
-    GetHitKeyStateAll(Key);
-    for (int i = 0; i < 256; i++) {
-        if (Key[i]) Buf[i]++;		// “ü—Í‚³‚ê‚½ƒL[‚Í‰Ÿ‚³‚ê‚Ä‚¢‚éŠÔ‚Ç‚ñ‚Ç‚ñ”š‚ª‘‚¦‚Ä‚¢‚­B
-        else        Buf[i] = 0;		// —£‚·‚Æˆê‹C‚É0‚É–ß‚é
-    }
+	GetHitKeyStateAll(Key);
+	for (int i = 0; i < 256; i++) {
+		if (Key[i]) Buf[i]++;		// “ü—Í‚³‚ê‚½ƒL[‚Í‰Ÿ‚³‚ê‚Ä‚¢‚éŠÔ‚Ç‚ñ‚Ç‚ñ”š‚ª‘‚¦‚Ä‚¢‚­B
+		else        Buf[i] = 0;		// —£‚·‚Æˆê‹C‚É0‚É–ß‚é
+	}
 }
 
 /***********************************************
@@ -257,7 +299,7 @@ void InputKey(void)
  **********************************************/
 void DrawTitle(void)
 {
-	if( Buf[ KEY_INPUT_RETURN ] == 1){
+	if (Buf[KEY_INPUT_RETURN] == 1) {
 		g_GameState = GAME_INIT;
 	}
 
@@ -268,41 +310,63 @@ void DrawTitle(void)
  **********************************************/
 void GameInit(void)
 {
-	g_Player.x = 64;
+	g_Player.x = 80;
 	g_Player.mx = 0;
-	g_Player.y = 288;
-	g_Player.angle = 1;
+	g_Player.y = 431;
+	g_Player.angle = 0;
 	g_Player.isinv = FALSE;
 	g_Player.invcnt = 0;
+	g_Player.jumppower = 0;
+	g_Player.jumpOK = TRUE;
+	g_Player.isground = TRUE;
+	g_Player.iscrouch = FALSE;
 
 	switch (g_InitStatus)
 	{
 	case FIRST:
+		g_Player.status = SUPER;
 		g_Player.life = START_LIFE;
 		g_IsThroughMiddlePoint = FALSE;
 		g_Score = 0;
 		g_Coin = 0;
 		g_Time = START_TIME;
+		g_Player.issuper = 1;
 		break;
 	case MISS:
+		g_Player.status = CHIBI;
 		--g_Player.life;
+		g_Player.issuper = FALSE;
 		break;
 	case CLEAR:
 		g_IsThroughMiddlePoint = FALSE;
 		break;
 	}
 
-	if( g_IsThroughMiddlePoint == TRUE){
+	if (g_IsThroughMiddlePoint == TRUE) {
 		g_Time = START_TIME / 2;
 	}
 
-	for(int i=0; i<12; i++){
-		for( int j=0; j<100; j++){
+	g_ScrollQuantity = 0;
+	g_HitBlockX = 0;
+	g_HitBlockY = 0;
+	g_BlockAnimFlg = 0;
+	g_BlockAnimCnt = 0;
+
+	StageInit();
+
+	g_GameState = GAME_PREMAIN;
+}
+
+/***********************************************
+ ƒXƒe[ƒW‰Šú‰»ˆ—
+ **********************************************/
+void StageInit(void)
+{
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
 			g_Stage[i][j] = g_InitStage[i][j];
 		}
 	}
-
-	g_GameState = GAME_PREMAIN;
 }
 
 /***********************************************
@@ -314,7 +378,7 @@ void DrawPreMain(void)
 
 	DrawUI();
 
-	if( ++WaitTime >= 150){
+	if (++WaitTime >= 0) {
 		g_GameState = GAME_MAIN;
 		WaitTime = 0;
 	}
@@ -330,7 +394,7 @@ void DrawMain(void)
 	DrawStage();
 	DrawPlayer();
 	DrawUI();
-	if( DEBUG == TRUE) DrawDebugInfo();
+	if (DEBUG == TRUE) DrawDebugInfo();
 }
 
 /***********************************************
@@ -338,42 +402,377 @@ void DrawMain(void)
  **********************************************/
 void PlayerControll(void)
 {
-	if( Buf[ KEY_INPUT_LEFT ] != 0){
-		if( IsPushDashKey() == TRUE){
+
+	g_Player.px = g_Player.x;
+	g_Player.py = g_Player.y;
+
+	if (Buf[KEY_INPUT_LEFT] != 0 && g_Player.iscrouch == FALSE) {
+		if (IsPushDashKey() == TRUE) {
 			g_Player.mx -= DASH_ACCEL;
-			if( g_Player.mx < -DASH_SPEED) g_Player.mx = -DASH_SPEED;
-		}else{
+			if (g_Player.mx < -DASH_SPEED) g_Player.mx = -DASH_SPEED;
+		}
+		else {
 			g_Player.mx -= NORMAL_ACCEL;
-			if( g_Player.mx < -NORMAL_SPEED) g_Player.mx = -NORMAL_SPEED;
+			if (g_Player.mx < -NORMAL_SPEED) g_Player.mx = -NORMAL_SPEED;
 		}
-		
-	}else if( Buf[ KEY_INPUT_RIGHT ] != 0){
-		if( IsPushDashKey() == TRUE){
+		if (IsHitBlockL() == 0) {
+			g_Player.x += (int)g_Player.mx;
+		}
+		if (g_Player.mx > 0 && IsHitBlockR() == 1) {
+			g_Player.x -= (int)g_Player.mx;
+		}
+		else if (g_Player.mx > 0 && IsHitBlockR() == 0) {
+			StageScroll();
+		}
+
+		if (g_Player.isjump == FALSE) {
+			g_Player.angle = TRUE;
+		}
+
+	}
+	else if (Buf[KEY_INPUT_RIGHT] != 0 && g_Player.iscrouch == FALSE) {
+		if (IsPushDashKey() == TRUE) {
 			g_Player.mx += DASH_ACCEL;
-			if( g_Player.mx > DASH_SPEED) g_Player.mx = DASH_SPEED;
-		}else{
-			g_Player.mx += NORMAL_ACCEL;
-			if( g_Player.mx > NORMAL_SPEED) g_Player.mx = NORMAL_SPEED;
+			if (g_Player.mx > DASH_SPEED) g_Player.mx = DASH_SPEED;
 		}
-	}else{
-		if( g_Player.mx < 0){
+		else {
 			g_Player.mx += NORMAL_ACCEL;
-		}else if( g_Player.mx > 0) g_Player.mx -= NORMAL_ACCEL;
+			if (g_Player.mx > NORMAL_SPEED) g_Player.mx = NORMAL_SPEED;
+		}
+		if (IsHitBlockR() == 0) {
+			g_Player.x += (int)g_Player.mx;
+			StageScroll();
+		}
+		if (g_Player.mx < 0 && IsHitBlockL() == 1) {
+			g_Player.x -= (int)g_Player.mx;
+		}
+
+		if (g_Player.isjump == FALSE) {
+			g_Player.angle = FALSE;
+		}
+	}
+	else {
+		if (g_Player.mx < 0) {
+			g_Player.mx += NORMAL_ACCEL;
+			if (IsHitBlockL() == 0) {
+				g_Player.x += (int)g_Player.mx;
+			}
+		}
+		else if (g_Player.mx > 0) {
+			g_Player.mx -= NORMAL_ACCEL;
+			if (IsHitBlockR() == 0) {
+				g_Player.x += (int)g_Player.mx;
+				StageScroll();
+			}
+		}
 	}
 
-	g_Player.x += (int)g_Player.mx;
-
 	PlayerJump();
+	PlayerFall();
+	FixPlayerPosition();
+	if( IsIntoHole(g_Player.y)){
+		g_GameState = GAME_INIT;
+	}
+}
+/***********************************************
+ ƒvƒŒƒCƒ„[—‰º
+ **********************************************/
+void PlayerFall(void)
+{
+	if (IsHitGround() == FALSE && g_Player.isjump == FALSE) {
+		if (g_Player.jumppower > -MAX_GRAVITY) {
+			g_Player.jumppower -= GRAVITY;
+		}
+		g_Player.y -= g_Player.jumppower;
+		if (IsHitCeil() == TRUE && g_Player.jumppower > 0) {
+			g_Player.isjump = FALSE;
+			g_Player.jumppower = 0;
+		}
+
+		if (IsHitGround() == TRUE) {
+			g_Player.y = (g_Player.y / BLOCKSIZE * BLOCKSIZE) + (BLOCKSIZE / 2) - 1;
+			g_Player.isjump = FALSE;
+		}
+	}
+
+}
+/***********************************************
+ ‚»‚ÌÀ•W‚ªƒuƒƒbƒN‚©”»’è‚·‚éB
+ ˆø”F”»’è‚³‚¹‚½‚¢ƒLƒƒƒ‰ƒNƒ^[‚ÌXAYÀ•WB
+ •Ô‚è’lFƒuƒƒbƒN‚¾‚Á‚½‚ç1A‚È‚É‚à‚È‚¢‚©ƒRƒCƒ“‚È‚Ç‚ÌƒAƒCƒeƒ€‚È‚ç0B
+ **********************************************/
+int IsBlock(int x, int y)
+{
+	if ((g_Stage[y][x] >= 1 && g_Stage[y][x] <= 8) ||
+		(g_Stage[y][x] >= 36 && g_Stage[y][x] <= 41) ||
+		(g_Stage[y][x] >= 60 && g_Stage[y][x] <= 65) ||
+		(g_Stage[y][x] >= 72 && g_Stage[y][x] <= 77)) {
+		return 1;
+	}
+	return 0;
+}
+/***********************************************
+ ƒuƒƒbƒN‚Æ‚Ì“–‚½‚è”»’è
+ **********************************************/
+int IsHitBlockR(void)
+{
+	int p_right = g_Player.x + HITBOX / 2 + 1;
+	int w_x = (p_right + g_ScrollQuantity) / BLOCKSIZE;
+	int p_upper = (g_Player.y - HITBOX / 4) - (g_Player.issuper * BLOCKSIZE) + (g_Player.iscrouch * BLOCKSIZE);
+	int m_upper = p_upper / BLOCKSIZE;
+
+	if (IsBlock(w_x, m_upper)){
+		if ((g_Player.x + HITBOX / 2 + 1) > (w_x * BLOCKSIZE - g_ScrollQuantity)) {
+			g_Player.x -= (g_Player.x + HITBOX / 2 + 1) - (w_x * BLOCKSIZE - g_ScrollQuantity);
+		}
+		return 1;
+	}
+
+	int p_bottom = g_Player.y + HITBOX / 2;
+	int m_bottom = p_bottom / BLOCKSIZE;
+
+	if (IsBlock(w_x, m_bottom)) {
+		if ((g_Player.x + HITBOX / 2 + 1) > (w_x * BLOCKSIZE - g_ScrollQuantity)) {
+			g_Player.x -= (g_Player.x + HITBOX / 2 + 1) - (w_x * BLOCKSIZE - g_ScrollQuantity);
+		}
+		return 1;
+	}
+
+	return 0;
 }
 
+/***********************************************
+ ¶‘¤ƒuƒƒbƒN‚Æ‚Ì“–‚½‚è”»’è
+ **********************************************/
+int IsHitBlockL(void)
+{
+	int p_left = g_Player.x - HITBOX / 2;
+	int w_x = (p_left + g_ScrollQuantity) / BLOCKSIZE;
+	int p_upper = g_Player.y - HITBOX / 2;
+	int m_upper = p_upper / BLOCKSIZE;
+
+	if (IsBlock(w_x, m_upper)) {
+
+		return 1;
+	}
+
+	int p_bottom = g_Player.y + HITBOX / 2;
+	int m_bottom = p_bottom / BLOCKSIZE;
+
+	if (IsBlock(w_x, m_bottom)) {
+
+		return 1;
+	}
+
+	return 0;
+}
+
+/***********************************************
+ ’n–Ê‚Æ‚Ì“–‚½‚è”»’è
+ **********************************************/
+int IsHitGround(void)
+{
+	int p_bottom = g_Player.y + HITBOX / 2 + 1;
+	int m_bottom = p_bottom / BLOCKSIZE;
+	int p_left = g_Player.x - HITBOX / 2 + 1 - (int)g_Player.mx*2;
+	int m_left = (p_left + g_ScrollQuantity) / BLOCKSIZE;
+
+	if (IsBlock(m_left, m_bottom)) {
+		if (p_bottom > m_bottom * BLOCKSIZE-8) {
+			g_Player.y -= p_bottom - m_bottom * BLOCKSIZE;
+		}
+
+		return 1;
+	}
+
+	int p_right = g_Player.x + HITBOX / 2 - 1;
+	int m_right = (p_right + g_ScrollQuantity) / BLOCKSIZE;
+
+	if (IsBlock(m_right, m_bottom)) {
+		if (p_bottom > m_bottom * BLOCKSIZE) {
+			g_Player.y -= p_bottom - m_bottom * BLOCKSIZE;
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
+/***********************************************
+ “Vˆä‚Æ‚Ì“–‚½‚è”»’è
+ **********************************************/
+int IsHitCeil(void)
+{
+	int p_upper = (g_Player.y - HITBOX / 2) - (g_Player.issuper * BLOCKSIZE) + (g_Player.iscrouch * BLOCKSIZE);
+	int m_upper = p_upper / BLOCKSIZE;
+	int p_left = g_Player.x - HITBOX / 2 + 1 - (int)g_Player.mx * 2;
+	int m_left = (p_left + g_ScrollQuantity) / BLOCKSIZE;
+
+	int p_right = g_Player.x + HITBOX / 2 - 1;
+	int m_right = (p_right + g_ScrollQuantity) / BLOCKSIZE;
+
+	if (IsBlock(m_left, m_upper)) {
+		if (g_Player.x + g_ScrollQuantity - (int)g_Player.mx * 2 >= m_left * BLOCKSIZE+32) {
+			p_left = g_Player.x + ((m_left * BLOCKSIZE + 32 - (g_Player.x + g_ScrollQuantity)) + 16 + (int)g_Player.mx * 2);
+			m_left = (p_left + g_ScrollQuantity) / BLOCKSIZE;
+			if (IsBlock(m_left, m_upper)) {
+				HitBlockMemo(m_left, m_upper);
+				return 1;
+			}
+			g_Player.x += (m_left * BLOCKSIZE + 32 - (g_Player.x + g_ScrollQuantity)) - 16 + (int)g_Player.mx * 2;
+			return 0;
+		}
+		HitBlockMemo(m_left, m_upper);
+		return 1;
+	}
+
+
+	if (IsBlock(m_right, m_upper)) {
+		if (g_Player.x + g_ScrollQuantity - 2 + (int)g_Player.mx <= m_right * BLOCKSIZE) {
+			p_right = g_Player.x - (((g_Player.x + g_ScrollQuantity) - m_right * BLOCKSIZE) + 5 + (int)g_Player.mx * 2);
+			m_right = (p_right + g_ScrollQuantity) / BLOCKSIZE;
+			if (IsBlock(m_right, m_upper)) {
+				HitBlockMemo(m_right, m_upper);
+				return 1;
+			}
+			g_Player.x -= ((g_Player.x + g_ScrollQuantity) - m_right * BLOCKSIZE) - 16 + (int)g_Player.mx * 2;
+			return 0;
+		}
+		HitBlockMemo(m_right, m_upper);
+		return 1;
+	}
+
+	return 0;
+}
+
+/***********************************************
+ “Vˆä‚Æ‚Ì“–‚½‚è”»’è
+ **********************************************/
+void HitBlockMemo(int x, int y)
+{
+	g_HitBlockX = x;
+	g_HitBlockY = y;
+	g_BlockAnimFlg = 1;
+	g_BlockAnimCnt = 0;
+}
+/***********************************************
+ ŒŠ‚É—‚¿‚½‚©”»’è
+ ˆø”FYÀ•W
+ •Ô‚è’lF—‚¿‚Ä‚¢‚½‚ç1
+ **********************************************/
+int IsIntoHole(int y)
+{
+	if( y >= SCREEN_HEIGHT + BLOCKSIZE)
+	{
+		return 1;
+	}
+
+	return 0;
+}
+/***********************************************
+ ƒAƒCƒeƒ€‚Æ‰E‘¤ƒuƒƒbƒN‚Ì“–‚½‚è”»’è
+ ˆø”FƒAƒCƒeƒ€‚ÌXAYÀ•W
+ •Ô‚è’lFƒuƒƒbƒN‚ÆÕ“Ë‚µ‚Ä‚¢‚½‚ç1A‚Å‚È‚¯‚ê‚Î0
+ **********************************************/
+int IsItemHitBlockR(int x, int y)
+{
+	int p_right = x + HITBOX / 2 + 1;
+	int w_x = (p_right + g_ScrollQuantity) / BLOCKSIZE;
+
+	int p_bottom = y + HITBOX / 2;
+	int m_bottom = p_bottom / BLOCKSIZE;
+
+	if (IsBlock(w_x, m_bottom)) {
+		return 1;
+	}
+
+	return 0;
+}
+
+/***********************************************
+ ƒAƒCƒeƒ€‚Æ¶‘¤ƒuƒƒbƒN‚Ì“–‚½‚è”»’è
+ ˆø”FƒAƒCƒeƒ€‚ÌXAYÀ•W
+ •Ô‚è’lFƒuƒƒbƒN‚ÆÕ“Ë‚µ‚Ä‚¢‚½‚ç1A‚Å‚È‚¯‚ê‚Î0
+ **********************************************/
+int IsItemHitBlockL(int x, int y)
+{
+	int p_left = g_Player.x - HITBOX / 2;
+	int w_x = (p_left + g_ScrollQuantity) / BLOCKSIZE;
+
+	int p_bottom = y + HITBOX / 2;
+	int m_bottom = p_bottom / BLOCKSIZE;
+
+	if (IsBlock(w_x, m_bottom)) {
+		return 1;
+	}
+
+	return 0;
+}
+
+/***********************************************
+ ƒAƒCƒeƒ€‚Æ’n–Ê‚Ì“–‚½‚è”»’è
+ ˆø”FƒAƒCƒeƒ€‚ÌXAYÀ•W
+ •Ô‚è’lFƒuƒƒbƒN‚ÆÕ“Ë‚µ‚Ä‚¢‚½‚ç1A‚Å‚È‚¯‚ê‚Î0
+ **********************************************/
+int IsItemHitGround(int x, int y)
+{
+	int p_bottom = y + HITBOX / 2 + 1;
+	int m_bottom = p_bottom / BLOCKSIZE;
+	int p_left = x - HITBOX / 2 + 1;
+	int m_left = (p_left + g_ScrollQuantity) / BLOCKSIZE;
+
+	if (IsBlock(m_left, m_bottom)) {
+		if (p_bottom > m_bottom * BLOCKSIZE-8) {
+			y -= p_bottom - m_bottom * BLOCKSIZE;
+		}
+
+		return 1;
+	}
+
+	int p_right = x + HITBOX / 2 - 1;
+	int m_right = (p_right + g_ScrollQuantity) / BLOCKSIZE;
+
+	if (IsBlock(m_right, m_bottom)) {
+		if (p_bottom > m_bottom * BLOCKSIZE) {
+			y -= p_bottom - m_bottom * BLOCKSIZE;
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
+/***********************************************
+ ƒvƒŒƒCƒ„[‚ª‰æ–Ê’[‚©‚ço‚È‚¢‚æ‚¤‚É‚·‚é
+ **********************************************/
+void FixPlayerPosition(void)
+{
+	if (g_Player.x - HITBOX / 2 <= 0) g_Player.x = 0 + HITBOX / 2;
+	if (g_Player.x + HITBOX / 2 >= SCREEN_WIDTH) g_Player.x = SCREEN_WIDTH - HITBOX / 2;
+}
 /***********************************************
  ƒ_ƒbƒVƒ…ƒL[‰Ÿ‚µ‚Ä‚é‚©”»’f
  **********************************************/
 bool IsPushDashKey(void)
 {
-	if( Buf[ KEY_INPUT_LSHIFT ] != 0){
+	if (Buf[KEY_INPUT_LSHIFT] != 0) {
 		return TRUE;
 	}
+	return FALSE;
+}
+
+/***********************************************
+ ‚µ‚á‚ª‚İƒL[‰Ÿ‚µ‚Ä‚é‚©”»’f
+ **********************************************/
+bool IsPushCrouchKey(void)
+{
+	if (Buf[KEY_INPUT_DOWN] != 0) {
+		g_Player.iscrouch = TRUE;
+		return TRUE;
+	}
+	g_Player.iscrouch = FALSE;
 	return FALSE;
 }
 
@@ -382,7 +781,7 @@ bool IsPushDashKey(void)
  **********************************************/
 bool IsPushJumpKey(void)
 {
-	if( Buf[ KEY_INPUT_SPACE ] != 0){
+	if (Buf[KEY_INPUT_SPACE] != 0) {
 		return TRUE;
 	}
 	return FALSE;
@@ -393,25 +792,40 @@ bool IsPushJumpKey(void)
  **********************************************/
 void PlayerJump(void)
 {
-	if( g_Player.isjump == TRUE){
-		g_Player.y -= g_Player.jumppower;
-		if( g_Player.jumppower > -MAX_GRAVITY){
+	if (g_Player.isjump == TRUE) {
+		if (g_Player.jumppower > -MAX_GRAVITY) {
 			//ã¸’†‚©‚ÂƒWƒƒƒ“ƒvƒL[‰Ÿ‚µ‚Ä‚éŠÔ‚Í‰ÁH—Ê‚ğ2•ª‚Ì1‚É‚·‚é
-			if( IsPushJumpKey() == TRUE && g_Player.jumppower > 0){
+			if (IsPushJumpKey() == TRUE && g_Player.jumppower > 0) {
 				g_Player.jumppower -= (GRAVITY - (GRAVITY / 2));
-			}else{
+			}
+			else {
 				g_Player.jumppower -= GRAVITY;
 			}
 		}
-		if( g_Player.y > 288){
-			g_Player.y = 288;
-			g_Player.isjump = FALSE;
+
+		g_Player.y -= g_Player.jumppower;
+		if (IsHitCeil() == TRUE && g_Player.jumppower > 0) {
+			g_Player.jumppower = 0;
 		}
+
+		if (IsHitGround() == TRUE && g_Player.jumppower <= 0) {
+			g_Player.isjump = FALSE;
+			g_Player.jumppower = 0;
+		}
+
 	}
 
-	if( g_Player.isjump == FALSE && IsPushJumpKey() == TRUE){
+	if (g_Player.isjump == FALSE && Buf[KEY_INPUT_SPACE] == 1 && g_Player.jumpOK == TRUE && IsHitGround()) {
 		g_Player.isjump = TRUE;
+		g_Player.jumpOK = FALSE;
 		g_Player.jumppower = IsPushDashKey() ? DASH_JUMPPOWER : NORMAL_JUMPPOWER;
+		g_Player.y -= g_Player.jumppower;
+	}
+
+	if (g_Player.isjump == FALSE && IsHitGround() == TRUE) {
+		if (IsPushJumpKey() == FALSE) {
+			g_Player.jumpOK = TRUE;
+		}
 	}
 }
 
@@ -421,7 +835,41 @@ void PlayerJump(void)
  **********************************************/
 void DrawPlayer(void)
 {
-	DrawCircle( BLOCKSIZE / 2 + g_Player.x, BLOCKSIZE / 2 + g_Player.y, BLOCKSIZE / 2, 0xDD3333);
+	PlayerAnimControll();
+	DrawRotaGraph(g_Player.x, g_Player.y - g_Player.issuper * BLOCKSIZE/2, 1.0f, 0, g_MarioImage[g_Player.status][g_Player.animnum], TRUE, g_Player.angle);
+}
+
+/***********************************************
+ ƒvƒŒƒCƒ„[ƒAƒjƒ[ƒVƒ‡ƒ“§Œä
+ **********************************************/
+void PlayerAnimControll(void)
+{
+	static int anim;
+	anim += abs((int)g_Player.mx);
+	if (anim >= 44) {
+		anim = 0;
+	}
+	g_Player.animnum = anim / 15;
+
+	if ((int)g_Player.mx == 0) {
+		g_Player.animnum = 0;
+		anim = 0;
+	}
+
+	if ((g_Player.mx > 0 && Buf[KEY_INPUT_LEFT] != 0) || (g_Player.mx < 0 && Buf[KEY_INPUT_RIGHT] != 0)) {
+		g_Player.animnum = 6;
+		if( g_Player.issuper == TRUE){
+			g_Player.animnum = 7;
+		}
+	}
+
+	if (g_Player.isjump == TRUE) {
+		g_Player.animnum = 4;
+	}
+
+	if( g_Player.issuper == TRUE && IsPushCrouchKey() == TRUE){
+		g_Player.animnum = 6;
+	}
 }
 
 /***********************************************
@@ -429,13 +877,43 @@ void DrawPlayer(void)
  **********************************************/
 void DrawStage(void)
 {
-	DrawBox( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x00bfff, TRUE);
+	DrawBox(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x228fdc, TRUE);
 
-	for( int i=0; i<12; i++){
-		for( int j=0; j<100; j++){
-			DrawGraph( j * BLOCKSIZE, i * BLOCKSIZE, g_Mapchip[g_Stage[i][j]], TRUE);
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = g_ScrollQuantity / BLOCKSIZE; j < g_ScrollQuantity / BLOCKSIZE + 21; j++) {
+			if( i == g_HitBlockY && j == g_HitBlockX && g_BlockAnimFlg >= 1){
+				if( g_BlockAnimFlg == 1){
+					if ( --g_BlockAnimCnt == -BLOCKSIZE / 4) g_BlockAnimFlg = 2;
+				}else if( g_BlockAnimFlg == 2){
+					if ( ++g_BlockAnimCnt == 0) g_BlockAnimFlg = 0;
+				}
+				DrawGraph(j * BLOCKSIZE - g_ScrollQuantity, i * BLOCKSIZE + g_BlockAnimCnt, g_Mapchip[g_Stage[i][j]], TRUE);
+			}else{
+				DrawGraph(j * BLOCKSIZE - g_ScrollQuantity, i * BLOCKSIZE, g_Mapchip[g_Stage[i][j]], TRUE);
+			}
 		}
 	}
+}
+
+/***********************************************
+ ƒXƒe[ƒW‚ÌƒXƒNƒ[ƒ‹
+ **********************************************/
+void StageScroll(void)
+{
+	if (g_ScrollQuantity <= (MAP_WIDTH - SCREEN_WIDTH / BLOCKSIZE) * BLOCKSIZE - 64) {
+		if (g_Player.x >= 192 && g_Player.x < 240) {
+			if( (int)g_Player.mx >= 0){
+				g_ScrollQuantity += (int)g_Player.mx;
+			}
+		}
+		else if (g_Player.x >= 240) {
+			g_Player.x -= (int)g_Player.mx;
+			if( (int)g_Player.mx >= 0){
+				g_ScrollQuantity += (int)g_Player.mx;
+			}
+		}
+	}
+
 }
 
 /***********************************************
@@ -454,14 +932,19 @@ void DrawDebugInfo(void)
 	bool IsDrawEnd = 0;
 	int i = 0;
 	while (IsDrawEnd == 0)
+
 	{
 		//DrawFormat...1•¶‚ğƒRƒs‚Á‚Ä " " ‚Ì’†g‚ğ•Ï‚¦‚é‚¾‚¯‚ÅŒ©‚½‚¢î•ñ‚ğŒ©‚ê‚Ü‚·B
 
-		DrawFormatStringToHandle( 5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "¶ƒVƒtƒgƒL[:ƒ_ƒbƒVƒ…");
-		DrawFormatStringToHandle( 5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "ƒXƒy[ƒXƒL[:ƒWƒƒƒ“ƒv");
+		DrawFormatStringToHandle(5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "¶ƒVƒtƒgƒL[:ƒ_ƒbƒVƒ…");
+		DrawFormatStringToHandle(5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "ƒXƒy[ƒXƒL[:ƒWƒƒƒ“ƒv");
 
-		DrawFormatStringToHandle( 5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "g_Player.x:%d", g_Player.x);
-		DrawFormatStringToHandle( 5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "g_Player.y:%d", g_Player.y);
+		DrawFormatStringToHandle(5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "g_Player.x:%d", g_Player.x);
+		DrawFormatStringToHandle(5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "g_Player.y:%d", g_Player.y);
+		DrawFormatStringToHandle(5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "ƒXƒNƒ[ƒ‹:%d", g_ScrollQuantity);
+		DrawFormatStringToHandle(5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "X:%d", (g_Player.x + g_ScrollQuantity) / BLOCKSIZE);
+		DrawFormatStringToHandle(5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "Y:%d", (g_Player.y + (HITBOX / 2)) / BLOCKSIZE);
+		DrawFormatStringToHandle(5, 5 + i++ * 16, 0xFFFFFF, FontSize[Size16], "g_Player.mx:%.3f", g_Player.mx);
 
 		IsDrawEnd = 1;
 	}
@@ -482,7 +965,10 @@ int LoadImages(void)
 {
 	//if((g_PlayerImage[Wait] = LoadGraph("Image/player normal.png")) == -1) return -1;
 
-	if( LoadDivGraph("Image/backimage.png", 84, 12, 7, 32, 32, g_Mapchip) == -1) return -1;
+	if (LoadDivGraph("Image/backimage.png", 84, 12, 7, 32, 32, g_Mapchip) == -1) return -1;
+	if (LoadDivGraph("Image/mario_chara.png", 15, 5, 3, 32, 32, g_MarioImage[0]) == -1) return -1;
+	if (LoadDivGraph("Image/super_mario_chara.png", 15, 5, 3, 32, 64, g_MarioImage[1]) == -1) return -1;
+	if (LoadDivGraph("Image/fire_mario_chara.png", 15, 5, 3, 32, 64, g_MarioImage[2]) == -1) return -1;
 
 	return 0;
 }
@@ -502,14 +988,15 @@ int LoadSounds(void)
  **********************************************/
 void CreateFontData(void)
 {
-	FontSize[Size16] = CreateFontToHandle( NULL, 16, -1, DX_FONTTYPE_ANTIALIASING_EDGE);	//ƒtƒHƒ“ƒgƒf[ƒ^‚ğ‚ ‚ç‚©‚¶‚ßì¬‚µ‚Ä‚¨‚­
-	FontSize[Size20] = CreateFontToHandle( NULL, 20, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontSize[Size25] = CreateFontToHandle( NULL, 25, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontSize[Size30] = CreateFontToHandle( NULL, 30, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontSize[Size35] = CreateFontToHandle( NULL, 35, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontSize[Size40] = CreateFontToHandle( NULL, 40, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontSize[Size48] = CreateFontToHandle( NULL, 48, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontSize[Size50] = CreateFontToHandle( NULL, 50, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
-	FontSize[Size200] = CreateFontToHandle( NULL, 200, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontSize[Size10] = CreateFontToHandle(NULL, 10, -1, DX_FONTTYPE_ANTIALIASING_EDGE);	//ƒtƒHƒ“ƒgƒf[ƒ^‚ğ‚ ‚ç‚©‚¶‚ßì¬‚µ‚Ä‚¨‚­
+	FontSize[Size16] = CreateFontToHandle(NULL, 16, -1, DX_FONTTYPE_ANTIALIASING_EDGE);	//ƒtƒHƒ“ƒgƒf[ƒ^‚ğ‚ ‚ç‚©‚¶‚ßì¬‚µ‚Ä‚¨‚­
+	FontSize[Size20] = CreateFontToHandle(NULL, 20, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontSize[Size25] = CreateFontToHandle(NULL, 25, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontSize[Size30] = CreateFontToHandle(NULL, 30, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontSize[Size35] = CreateFontToHandle(NULL, 35, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontSize[Size40] = CreateFontToHandle(NULL, 40, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontSize[Size48] = CreateFontToHandle(NULL, 48, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontSize[Size100] = CreateFontToHandle(NULL, 50, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
+	FontSize[Size200] = CreateFontToHandle(NULL, 200, -1, DX_FONTTYPE_ANTIALIASING_EDGE);
 
 }
