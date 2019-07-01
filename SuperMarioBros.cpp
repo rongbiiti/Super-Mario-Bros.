@@ -1,105 +1,10 @@
-/********************************************************************
-** チーム制作：スーパーマリオブラザーズ　制作開始：2019/06/07
-** 佳秀組（冨名腰佳秀、長浜颯士、呉屋翔麻、平田稀里）
-********************************************************************/
 #include "DxLib.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "Base.h"
 
-/***********************************************
- * 定数の宣言
- ***********************************************/
-#define DEBUG 1					// 0→デバッグOFF	1→デバッグON
-#define BLOCKSIZE 32			// 1マスの大きさ
-#define FONTDATA_COUNT 10		// フォントデータの数
-#define SCREEN_WIDTH 640		// 画面の幅
-#define SCREEN_HEIGHT 512		// 画面の高さ
-#define DRAW_WINDOW_WIDTH 1152	// 描画時の画面の幅。
-#define DRAW_WINDOW_HEIGHT 864	// 描画時の画面の高さ
-#define MAP_WIDTH 221			// マップの幅
-#define MAP_HEIGHT 16			// マップの高さ
-#define START_LIFE 3			// 初期ライフ
-#define START_TIME 400			// 初期残り時間
-#define NORMAL_SPEED 3			// 移動速度
-#define DASH_SPEED 5			// ダッシュ速度
-#define NORMAL_JUMPPOWER 18		// ジャンプ強度
-#define DASH_JUMPPOWER 18		// ダッシュジャンプ強度
-#define GRAVITY 2				// 重力
-#define MAX_GRAVITY 7			// 重力最大値
-#define HITBOX	32				// マリオの当たり判定
-
-const float NORMAL_ACCEL = 0.23f;
-const float DASH_ACCEL = 0.32f;
-
-/***********************************************
- * 列挙体の宣言
- ***********************************************/
-typedef enum GAME_MODE {
-	GAME_TITLE,
-	GAME_INIT,
-	GAME_PREMAIN,		// メインに入る直前の残機表示画面
-	GAME_MAIN,
-	GAME_OVER,
-	END = 99
-};
-
-typedef enum FONTSIZE {
-	Size10,
-	Size16,				// フォントデータの配列の添え字指定用の列挙定数の宣言
-	Size20,
-	Size25,
-	Size30,
-	Size35,
-	Size40,
-	Size48,
-	Size100,
-	Size200
-};
-
-typedef enum MARIO_STATUS {
-	CHIBI,		// チビマリオ
-	SUPER,		// スーパーマリオ
-	FIRE,		// ファイアマリオ
-	STAR		// 無敵
-};
-
-typedef enum ENEMY {
-	KURIBO,			// クリボー
-	NOKONOKO,		// ノコノコ
-	SHELL,			// カメのコウラ
-	PAKKUN_FLOWER	// パックンフラワー
-};
-
-typedef enum ITEM {
-	SUPER_KINOKO,	// スーパーキノコ
-	FIRE_FLOWER,	// ファイアフラワー
-	SUPER_STAR,		// スーパースター
-	ONEUP_KINOKO,	// 1UPキノコ
-};
-
-typedef enum MAP_OBJECT {
-	GROUND = 7,				// 地面ブロック
-	RENGA_BLOCK,			// レンガブロック
-	TEN_COIN_BLOCK,			// 10コインブロック
-	HATENA_BLOCK,			// ハテナブロック
-	HIDDEN_BLOCK,			// 隠しブロック
-	EMPTY_BLOCK,			// カラブロック
-	HARD_BLOCK,				// 硬いブロック
-	COIN,					// コイン
-	PIPE,					// 土管
-	MIDDLE_POINT,			// 中間ポイント
-	GOAL_POLE,				// ゴールポール
-	SPAWN_KURIBO,			// クリボー出現位置
-	SPAWN_NOKONOKO,			// ノコノコ出現位置
-	SPAWN_PAKKUN_FLOWER		// パックンフラワー出現位置
-};
-
-typedef enum INIT_STATUS {
-	FIRST,				// 1-1から
-	MISS,				// ミス
-	CLEAR				// コースクリア
-};
-
+extern const float NORMAL_ACCEL = 0.1f;
+extern const float DASH_ACCEL = 0.15f;
 /***********************************************
  * 変数の宣言
  ***********************************************/
@@ -144,11 +49,23 @@ struct PLAYER {
 };																	
 struct PLAYER g_Player;
 
+struct BROKENRENGA {
+	bool flg;
+	int x, y;
+	int initY;
+	int jumppowerX;
+	int jumppowerY;
+	int animcnt;
+	double angle;
+};
+struct BROKENRENGA g_BrokenRenga[BROKENRENGA_MAX];
+
 /***********************************************
  * 画像データ用変数の宣言
  ***********************************************/
 int g_Mapchip[84];		// マップチップ画像格納用配列
 int g_MarioImage[3][15];		// マリオキャラチップ画像
+int g_BrokenRengaImage[4];	//壊れたレンガの画像
 
 /***********************************************
  * 音データ用変数の宣言
@@ -170,57 +87,13 @@ int g_InitStage[MAP_HEIGHT][MAP_WIDTH] = { {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,68,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,8,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,-1,-1,42,42,42,-1,-1,-1,-1,-1,-1},
 											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,1,-1,-1,-1,5,1,5,1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,-1,-1,-1,-1,-1,5,5,-1,-1,-1,-1,-1,1,-1,-1,1,-1,-1,1,-1,-1,-1,-1,-1,-1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,5,-1,-1,-1,-1,-1,-1,8,-1,-1,8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,-1,-1,8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,5,5,1,5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,8,8,-1,-1,-1,-1,-1,-1,-1,-1,34,-1,-1,-1,-1,44,45,46,-1,-1,-1,-1,-1,-1},
 											{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,-1,-1,8,8,-1,-1,-1,-1,17,-1,-1,-1,8,8,8,-1,-1,8,8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,8,8,8,-1,-1,-1,17,-1,-1,-1,-1,34,-1,-1,-1,42,43,43,43,42,-1,-1,-1,-1,-1},
-											{-1,17,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,14,15,16,-1,-1,-1,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,15,16,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,-1,-1,8,8,8,-1,-1,14,15,16,-1,8,8,8,8,-1,-1,8,8,8,-1,-1,-1,17,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,8,8,8,8,8,8,8,8,-1,-1,14,15,16,-1,-1,-1,34,-1,-1,-1,45,45,47,45,45,-1,-1,17,-1,-1},
-											{14,15,16,-1,-1,-1,-1,76,77,-1,-1,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,21,22,23,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,21,22,22,23,-1,76,77,-1,14,15,15,15,16,-1,-1,-1,-1,76,77,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,21,22,22,23,-1,-1,-1,14,15,15,15,16,-1,-1,-1,-1,-1,-1,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,22,22,8,8,8,8,14,15,15,15,8,8,8,8,8,-1,-1,8,8,8,8,23,14,15,16,76,77,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,76,77,8,8,8,8,8,8,8,8,8,-1,14,15,15,15,16,-1,-1,8,-1,-1,-1,45,45,59,45,45,23,14,15,16,-1},
+											{-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,14,15,16,-1,-1,-1,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,15,16,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,17,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,-1,-1,8,8,8,-1,-1,14,15,16,-1,8,8,8,8,-1,-1,8,8,8,-1,-1,-1,17,-1,64,65,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,64,65,-1,8,8,8,8,8,8,8,8,-1,-1,14,15,16,-1,-1,-1,34,-1,-1,-1,45,45,47,45,45,-1,-1,17,-1,-1},
+											{14,15,16,-1,-1,-1,-1,-1,-1,-1,-1,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,21,22,23,-1,-1,76,77,-1,-1,-1,-1,-1,-1,-1,-1,76,77,-1,-1,21,22,22,23,-1,76,77,-1,14,15,15,15,16,-1,-1,-1,-1,76,77,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,21,22,22,23,-1,-1,-1,14,15,15,15,16,-1,-1,-1,-1,-1,-1,-1,21,22,22,22,23,14,15,16,-1,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,8,8,8,8,22,22,8,8,8,8,14,15,15,15,8,8,8,8,8,-1,-1,8,8,8,8,23,14,15,16,76,77,-1,-1,-1,-1,21,22,23,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,76,77,8,8,8,8,8,8,8,8,8,-1,14,15,15,15,16,-1,-1,8,-1,-1,-1,45,45,59,45,45,23,14,15,16,-1},
 											{7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7},
 											{7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,-1,-1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7} };
 
-
-
 int g_Stage[MAP_HEIGHT][MAP_WIDTH];
-/***********************************************
- 関数のプロトタイプ宣言
- **********************************************/
-void InputKey(void);		// 0:入力されていない 1:入力された瞬間 2以上:入力されている
 
-void DrawTitle(void);		// タイトル画面描画
-void GameInit(void);		// 初期化処理
-void StageInit(void);		// ステージ初期化処理
-void DrawPreMain(void);		// メイン直前のマリオ残機数表示画面
-
-void DrawMain(void);		// ゲームメイン
-void PlayerControll(void);	// プレイヤー制御
-void PlayerFall(void);		// プレイヤー落下
-int IsBlock(int x, int y);	// その座標にブロックがあるか判定する
-int IsHitBlockR(void);		// 右側ブロックとの当たり判定
-int IsHitBlockL(void);		// 左側ブロックとの当たり判定
-int IsHitGround(void);		// 地面との当たり判定
-int IsHitCeil(void);		// 天井との当たり判定
-void HitBlockMemo(int x, int y);	// 当たった天井のブロックの座標を記憶しておき、ブロックアニメフラグを立てる
-int IsIntoHole(int y);		// 穴に落ちたか判定
-void FixPlayerPosition(void);// プレイヤーが画面端から出ないようにする
-bool IsPushDashKey(void);	// ダッシュキー押してるか判断
-bool IsPushCrouchKey(void);	// しゃがみキー押してるか判断
-bool IsPushJumpKey(void);	// ジャンプキー押してるか判断
-void PlayerJump(void);		// ジャンプ処理
-
-void DrawPlayer(void);		// プレイヤー描画
-void PlayerAnimControll(void);	// プレイヤーアニメション制御
-
-int IsItemHitBlockR(int x, int y);	// アイテムと右側ブロックとの当たり判定
-int IsItemHitBlockL(int x, int y);	// アイテムと左側ブロックとの当たり判定
-int IsItemHitGround(int x, int y);	// アイテムと地面との当たり判定
-
-void DrawStage(void);		// ステージ描画
-void StageScroll(void);		// ステージのスクロール
-void DrawUI(void);			// 画面上部のUI描画
-void DrawDebugInfo(void);	// デバッグ用情報表示
-
-void DrawGameOver(void);	// ゲームオーバー画面描画
-
-int LoadImages(void);		// 画像データロード
-int LoadSounds(void);		// 音データロード
-void CreateFontData(void);	// フォントデータ作成
 
 /***********************************************
  * プログラムの開始
@@ -351,6 +224,17 @@ void GameInit(void)
 	g_HitBlockY = 0;
 	g_BlockAnimFlg = 0;
 	g_BlockAnimCnt = 0;
+
+	for (int i = 0; i < BROKENRENGA_MAX; i++) {
+		g_BrokenRenga[i].flg = FALSE;
+		g_BrokenRenga[i].x = 0;
+		g_BrokenRenga[i].y = 0;
+		g_BrokenRenga[i].initY = 0;
+		g_BrokenRenga[i].jumppowerX = 0;
+		g_BrokenRenga[i].jumppowerY = 0;
+		g_BrokenRenga[i].animcnt = 0;
+		g_BrokenRenga[i].angle = 0;
+	}
 
 	StageInit();
 
@@ -484,10 +368,10 @@ void PlayerFall(void)
 			g_Player.jumppower -= GRAVITY;
 		}
 		g_Player.y -= g_Player.jumppower;
-		if (IsHitCeil() == TRUE && g_Player.jumppower > 0) {
+		/*if (IsHitCeil() == TRUE && g_Player.jumppower > 0) {
 			g_Player.isjump = FALSE;
 			g_Player.jumppower = 0;
-		}
+		}*/
 
 		if (IsHitGround() == TRUE) {
 			g_Player.y = (g_Player.y / BLOCKSIZE * BLOCKSIZE) + (BLOCKSIZE / 2) - 1;
@@ -503,7 +387,7 @@ void PlayerFall(void)
  **********************************************/
 int IsBlock(int x, int y)
 {
-	if ((g_Stage[y][x] >= 1 && g_Stage[y][x] <= 8) ||
+	if ((g_Stage[y][x] >= 0 && g_Stage[y][x] <= 8) ||
 		(g_Stage[y][x] >= 36 && g_Stage[y][x] <= 41) ||
 		(g_Stage[y][x] >= 60 && g_Stage[y][x] <= 65) ||
 		(g_Stage[y][x] >= 72 && g_Stage[y][x] <= 77)) {
@@ -525,6 +409,7 @@ int IsHitBlockR(void)
 		if ((g_Player.x + HITBOX / 2 + 1) > (w_x * BLOCKSIZE - g_ScrollQuantity)) {
 			g_Player.x -= (g_Player.x + HITBOX / 2 + 1) - (w_x * BLOCKSIZE - g_ScrollQuantity);
 		}
+		g_Player.mx = 0;
 		return 1;
 	}
 
@@ -535,6 +420,7 @@ int IsHitBlockR(void)
 		if ((g_Player.x + HITBOX / 2 + 1) > (w_x * BLOCKSIZE - g_ScrollQuantity)) {
 			g_Player.x -= (g_Player.x + HITBOX / 2 + 1) - (w_x * BLOCKSIZE - g_ScrollQuantity);
 		}
+		g_Player.mx = 0;
 		return 1;
 	}
 
@@ -546,13 +432,16 @@ int IsHitBlockR(void)
  **********************************************/
 int IsHitBlockL(void)
 {
-	int p_left = g_Player.x - HITBOX / 2;
+	int p_left = g_Player.x - HITBOX / 2 - 1;
 	int w_x = (p_left + g_ScrollQuantity) / BLOCKSIZE;
-	int p_upper = g_Player.y - HITBOX / 2;
+	int p_upper = (g_Player.y - HITBOX / 4) - (g_Player.issuper * BLOCKSIZE) + (g_Player.iscrouch * BLOCKSIZE);
 	int m_upper = p_upper / BLOCKSIZE;
 
 	if (IsBlock(w_x, m_upper)) {
-
+		if (p_left > (w_x * BLOCKSIZE - g_ScrollQuantity)) {
+			g_Player.x += (w_x * BLOCKSIZE - g_ScrollQuantity) - p_left+32;
+		}
+		g_Player.mx = 0;
 		return 1;
 	}
 
@@ -560,7 +449,10 @@ int IsHitBlockL(void)
 	int m_bottom = p_bottom / BLOCKSIZE;
 
 	if (IsBlock(w_x, m_bottom)) {
-
+		if (p_left > (w_x * BLOCKSIZE - g_ScrollQuantity)) {
+			g_Player.x += (w_x * BLOCKSIZE - g_ScrollQuantity) - p_left+32;
+		}
+		g_Player.mx = 0;
 		return 1;
 	}
 
@@ -578,8 +470,8 @@ int IsHitGround(void)
 	int m_left = (p_left + g_ScrollQuantity) / BLOCKSIZE;
 
 	if (IsBlock(m_left, m_bottom)) {
-		if (p_bottom > m_bottom * BLOCKSIZE-8) {
-			g_Player.y -= p_bottom - m_bottom * BLOCKSIZE;
+		if (p_bottom > m_bottom * BLOCKSIZE+-g_Player.jumppower/2) {
+			g_Player.y -= (p_bottom - m_bottom * BLOCKSIZE)/2+2;
 		}
 
 		return 1;
@@ -589,8 +481,8 @@ int IsHitGround(void)
 	int m_right = (p_right + g_ScrollQuantity) / BLOCKSIZE;
 
 	if (IsBlock(m_right, m_bottom)) {
-		if (p_bottom > m_bottom * BLOCKSIZE) {
-			g_Player.y -= p_bottom - m_bottom * BLOCKSIZE;
+		if (p_bottom > m_bottom * BLOCKSIZE+-g_Player.jumppower/2) {
+			g_Player.y -= (p_bottom - m_bottom * BLOCKSIZE)/2+2;
 		}
 
 		return 1;
@@ -617,13 +509,25 @@ int IsHitCeil(void)
 			p_left = g_Player.x + ((m_left * BLOCKSIZE + 32 - (g_Player.x + g_ScrollQuantity)) + 16 + (int)g_Player.mx * 2);
 			m_left = (p_left + g_ScrollQuantity) / BLOCKSIZE;
 			if (IsBlock(m_left, m_upper)) {
-				HitBlockMemo(m_left, m_upper);
+				HitBlockMemo(m_left, m_upper);	
+				if (g_Stage[m_upper][m_left] == 5 && g_Player.issuper == TRUE) {
+					InitBrokenRenga(m_left, m_upper);
+				}
+				else if (g_Stage[m_upper][m_left] == 1) {
+					g_Stage[m_upper][m_left] = 0;
+				}
 				return 1;
 			}
 			g_Player.x += (m_left * BLOCKSIZE + 32 - (g_Player.x + g_ScrollQuantity)) - 16 + (int)g_Player.mx * 2;
 			return 0;
 		}
 		HitBlockMemo(m_left, m_upper);
+		if (g_Stage[m_upper][m_left] == 5 && g_Player.issuper == TRUE) {
+			InitBrokenRenga(m_left, m_upper);
+		}
+		else if (g_Stage[m_upper][m_left] == 1) {
+			g_Stage[m_upper][m_left] = 0;
+		}
 		return 1;
 	}
 
@@ -634,12 +538,24 @@ int IsHitCeil(void)
 			m_right = (p_right + g_ScrollQuantity) / BLOCKSIZE;
 			if (IsBlock(m_right, m_upper)) {
 				HitBlockMemo(m_right, m_upper);
+				if (g_Stage[m_upper][m_right] == 5 && g_Player.issuper == TRUE) {
+					InitBrokenRenga(m_right, m_upper);
+				}
+				else if (g_Stage[m_upper][m_right] == 1) {
+					g_Stage[m_upper][m_right] = 0;
+				}
 				return 1;
 			}
 			g_Player.x -= ((g_Player.x + g_ScrollQuantity) - m_right * BLOCKSIZE) - 16 + (int)g_Player.mx * 2;
 			return 0;
 		}
 		HitBlockMemo(m_right, m_upper);
+		if (g_Stage[m_upper][m_right] == 5 && g_Player.issuper == TRUE) {
+			InitBrokenRenga(m_right, m_upper);
+		}
+		else if (g_Stage[m_upper][m_right] == 1) {
+			g_Stage[m_upper][m_right] = 0;
+		}
 		return 1;
 	}
 
@@ -647,14 +563,18 @@ int IsHitCeil(void)
 }
 
 /***********************************************
- 天井との当たり判定
+ 叩いたブロックの場所を記憶
  **********************************************/
 void HitBlockMemo(int x, int y)
 {
 	g_HitBlockX = x;
 	g_HitBlockY = y;
-	g_BlockAnimFlg = 1;
-	g_BlockAnimCnt = 0;
+	if ( g_Stage[g_HitBlockY][g_HitBlockX] == 1 || 
+		(g_Stage[g_HitBlockY][g_HitBlockX] == 5 && g_Player.issuper == FALSE) ) {
+		g_BlockAnimFlg = 1;
+		g_BlockAnimCnt = 0;
+	}
+	
 }
 /***********************************************
  穴に落ちたか判定
@@ -723,7 +643,7 @@ int IsItemHitGround(int x, int y)
 	int m_left = (p_left + g_ScrollQuantity) / BLOCKSIZE;
 
 	if (IsBlock(m_left, m_bottom)) {
-		if (p_bottom > m_bottom * BLOCKSIZE-8) {
+		if (p_bottom > m_bottom * BLOCKSIZE-3) {
 			y -= p_bottom - m_bottom * BLOCKSIZE;
 		}
 
@@ -734,7 +654,7 @@ int IsItemHitGround(int x, int y)
 	int m_right = (p_right + g_ScrollQuantity) / BLOCKSIZE;
 
 	if (IsBlock(m_right, m_bottom)) {
-		if (p_bottom > m_bottom * BLOCKSIZE) {
+		if (p_bottom > m_bottom * BLOCKSIZE-10) {
 			y -= p_bottom - m_bottom * BLOCKSIZE;
 		}
 
@@ -805,7 +725,7 @@ void PlayerJump(void)
 
 		g_Player.y -= g_Player.jumppower;
 		if (IsHitCeil() == TRUE && g_Player.jumppower > 0) {
-			g_Player.jumppower = 0;
+			g_Player.jumppower = -5;
 		}
 
 		if (IsHitGround() == TRUE && g_Player.jumppower <= 0) {
@@ -852,8 +772,12 @@ void PlayerAnimControll(void)
 	g_Player.animnum = anim / 15;
 
 	if ((int)g_Player.mx == 0) {
+		if( Buf[ KEY_INPUT_RIGHT ] != 0 || Buf [ KEY_INPUT_LEFT ] != 0){
+			anim += 2;
+		}else{
 		g_Player.animnum = 0;
 		anim = 0;
+		}
 	}
 
 	if ((g_Player.mx > 0 && Buf[KEY_INPUT_LEFT] != 0) || (g_Player.mx < 0 && Buf[KEY_INPUT_RIGHT] != 0)) {
@@ -893,8 +817,62 @@ void DrawStage(void)
 			}
 		}
 	}
+	DrawBrokenRenga();
+}
+/***********************************************
+ 壊れたレンガのアニメ開始位置の初期化
+ **********************************************/
+void InitBrokenRenga(int x, int y)
+{
+	bool flg = false;
+	for (int i = 0; i < BROKENRENGA_MAX; i++) {
+		if (g_BrokenRenga[i].flg == FALSE) {
+			g_BrokenRenga[i].flg = TRUE;
+			g_BrokenRenga[i].x = x * BLOCKSIZE;
+			g_BrokenRenga[i].y = y * BLOCKSIZE;
+			g_BrokenRenga[i].initY = y * BLOCKSIZE;
+			g_BrokenRenga[i].jumppowerX = 0;
+			g_BrokenRenga[i].jumppowerY = 8;
+			g_Stage[y][x] = -1;
+			g_BrokenRenga[i].animcnt = 0;
+			g_BrokenRenga[i].angle = 0;
+			flg = true;
+		}
+		if (flg == true) break;
+	}
 }
 
+/***********************************************
+ 壊れたレンガの描画
+ **********************************************/
+void DrawBrokenRenga(void)
+{
+	for( int i=0; i<BROKENRENGA_MAX; i++){
+		if (g_BrokenRenga[i].flg == TRUE) {
+			DrawRotaGraph(g_BrokenRenga[i].x - g_ScrollQuantity - g_BrokenRenga[i].jumppowerX, g_BrokenRenga[i].y - 32, 1, g_BrokenRenga[i].angle, g_BrokenRengaImage[0], TRUE);
+			DrawRotaGraph(g_BrokenRenga[i].x - g_ScrollQuantity + BLOCKSIZE / 2 + g_BrokenRenga[i].jumppowerX, g_BrokenRenga[i].y - 32, 1, g_BrokenRenga[i].angle, g_BrokenRengaImage[1], TRUE);
+			DrawRotaGraph(g_BrokenRenga[i].x - g_ScrollQuantity - g_BrokenRenga[i].jumppowerX, g_BrokenRenga[i].y + BLOCKSIZE / 2, 1, g_BrokenRenga[i].angle, g_BrokenRengaImage[2], TRUE);
+			DrawRotaGraph(g_BrokenRenga[i].x - g_ScrollQuantity + BLOCKSIZE / 2 + g_BrokenRenga[i].jumppowerX, g_BrokenRenga[i].y + BLOCKSIZE / 2, 1, g_BrokenRenga[i].angle, g_BrokenRengaImage[3], TRUE);
+
+			g_BrokenRenga[i].y -= g_BrokenRenga[i].jumppowerY;
+			g_BrokenRenga[i].jumppowerX += 2;
+
+			if (g_BrokenRenga[i].jumppowerY > -MAX_GRAVITY) {
+				--g_BrokenRenga[i].jumppowerY;
+			}
+			if (g_BrokenRenga[i].y - g_BrokenRenga[i].initY > SCREEN_HEIGHT) {
+				g_BrokenRenga[i].flg = FALSE;
+			}
+			if (++g_BrokenRenga[i].animcnt > 30) {
+				g_BrokenRenga[i].angle = (180 * 3.14) / 180;
+			}
+			else if (g_BrokenRenga[i].animcnt > 60) {
+				g_BrokenRenga[i].animcnt = 0;
+				g_BrokenRenga[i].angle = 0;
+			}
+		}
+	}
+}
 /***********************************************
  ステージのスクロール
  **********************************************/
@@ -966,6 +944,7 @@ int LoadImages(void)
 	//if((g_PlayerImage[Wait] = LoadGraph("Image/player normal.png")) == -1) return -1;
 
 	if (LoadDivGraph("Image/backimage.png", 84, 12, 7, 32, 32, g_Mapchip) == -1) return -1;
+	if (LoadDivGraph("Image/BrokenRenga.png", 4, 2, 2, 16, 16, g_BrokenRengaImage) == -1) return -1;
 	if (LoadDivGraph("Image/mario_chara.png", 15, 5, 3, 32, 32, g_MarioImage[0]) == -1) return -1;
 	if (LoadDivGraph("Image/super_mario_chara.png", 15, 5, 3, 32, 64, g_MarioImage[1]) == -1) return -1;
 	if (LoadDivGraph("Image/fire_mario_chara.png", 15, 5, 3, 32, 64, g_MarioImage[2]) == -1) return -1;
